@@ -1,11 +1,5 @@
 package structures
 
-import (
-	"LocalSearch/utils"
-	"image"
-	"math/rand"
-)
-
 // Pixel is a simple struct holding the info of a pixel
 type Pixel struct {
 	R, G, B, A uint8
@@ -44,51 +38,29 @@ func BlackPicture(width int, height int) Picture {
 	return Picture{Pixels: pixels, Width: width, Height: height}
 }
 
-// Circle holds the basic info of a circle,
-type Circle struct {
-	Radius, X, Y int
-	Color        Pixel
-}
+// FourPointAverage gives a color averaged between the midmid point and the halfwaypoints between
+// the middle and of the line from midmid to each corner
+func FourPointAverage(q1, q2, q3 Coord, pic Picture) Pixel {
+	midx := (q1.X + q2.X + q3.X) / 3
+	midy := (q1.Y + q2.Y + q3.Y) / 3
 
-// CalcBounds calculates the outer most points of two shapes
-func CalcBounds(circ Circle, bounds image.Rectangle, picWidth int, picHeight int) image.Rectangle {
-	xmin := circ.X - circ.Radius
-	xmax := circ.X + circ.Radius
-	ymin := circ.Y - circ.Radius
-	ymax := circ.Y + circ.Radius
+	// Halfway point between corner (q) and the middle
+	hq1x := (q1.X + midx) / 2
+	hq1y := (q1.Y + midy) / 2
+	hq2x := (q2.X + midx) / 2
+	hq2y := (q2.Y + midy) / 2
+	hq3x := (q3.X + midx) / 2
+	hq3y := (q3.Y + midy) / 2
 
-	xmin = utils.Min(xmin, bounds.Min.X)
-	xmax = utils.Max(xmax, bounds.Max.X)
-	ymin = utils.Min(ymin, bounds.Min.Y)
-	ymax = utils.Max(ymax, bounds.Max.Y)
+	midcol := pic.Pixels[int(midx)+int(midy)*pic.Width]
+	hq1col := pic.Pixels[int(hq1x)+int(hq1y)*pic.Width]
+	hq2col := pic.Pixels[int(hq2x)+int(hq2y)*pic.Width]
+	hq3col := pic.Pixels[int(hq3x)+int(hq3y)*pic.Width]
 
-	return image.Rect(
-		utils.Clamp(0, picWidth, xmin),
-		utils.Clamp(0, picHeight, ymin),
-		utils.Clamp(0, picWidth, xmax),
-		utils.Clamp(0, picHeight, ymax),
-	)
-}
-
-// SkipRect is a rectangle used to have no impact on the bounds
-func SkipRect() image.Rectangle {
-	return image.Rect(2000000, 2000000, -2000000, -2000000)
-}
-
-// NewRandomCircle Creates a new random circle
-func NewRandomCircle(width int, height int) Circle {
-	c := Circle{
-		Radius: rand.Intn(utils.RadiusMaxReroll),
-		X:      rand.Intn(width),
-		Y:      rand.Intn(height),
-		Color: Pixel{
-			R: uint8(rand.Intn(255)),
-			G: uint8(rand.Intn(255)),
-			B: uint8(rand.Intn(255)),
-			//A: uint8(rand.Intn(255)),
-			A: 255,
-		},
+	return Pixel{
+		R: (midcol.R >> 2) + (hq1col.R >> 2) + (hq2col.R >> 2) + (hq3col.R >> 2),
+		G: (midcol.G >> 2) + (hq1col.G >> 2) + (hq2col.G >> 2) + (hq3col.G >> 2),
+		B: (midcol.B >> 2) + (hq1col.B >> 2) + (hq2col.B >> 2) + (hq3col.B >> 2),
+		A: (midcol.A >> 2) + (hq1col.A >> 2) + (hq2col.A >> 2) + (hq3col.A >> 2),
 	}
-
-	return c
 }

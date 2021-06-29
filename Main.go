@@ -26,44 +26,41 @@ func main() {
 		pprof.StartCPUProfile(f)
 		defer pprof.StopCPUProfile()
 	}
-	// width := 500
-	// height := 500
-	// p := st.BlackPicture(width, height)
-	// scene := search.NewRandomScene(width, height)
-	// scene.Draw(&p)
 
-	// img := imagerelated.PixelsToImage(p.Pixels, image.Rect(0, 0, width, height))
-	// imagerelated.SaveImage(img, "Test1.jpg")
-	ogImg, err := imagerelated.OpenImage("tree.png")
+	ogImg, err := imagerelated.OpenImage("pictures/mountain-lake.png")
 	if err != nil {
 		fmt.Print(err)
 		return
 	}
+
 	width := ogImg.Bounds().Max.X
 	height := ogImg.Bounds().Max.Y
-	original := st.Picture{Pixels: imagerelated.ImageToPixels(ogImg), Width: width, Height: height}
-	scene := search.NewRandomScene(width, height)
+	original := st.Picture{
+		Pixels: imagerelated.ImageToPixels(ogImg),
+		Width:  width,
+		Height: height,
+	}
+	// scene := search.NewRandomScene(width, height)
+	// scene := search.HeadStartedScene(width, height, &original)
+
+	scene := st.NewTriangleSceneHeadstart(96, 64, &original)
 	matchImg := st.BlackPicture(width, height)
 	scene.Draw(&matchImg)
-	img1 := imagerelated.PixelsToImage(matchImg.Pixels, image.Rect(0, 0, width, height))
-	imagerelated.SaveImage(img1, "Test1.jpg")
+	//img1 := imagerelated.PixelsToImage(matchImg.Pixels, image.Rect(0, 0, width, height))
+	//imagerelated.SaveImage(img1, "pictures/Test1_Triangle2.png")
+
 	fmt.Println("Started")
 
 	start := time.Now()
 
-	search.MutationRounds(1000, &original, &matchImg, &scene)
+	rounds := 100000
+	search.MutationRoundsTriangles(rounds, &original, &matchImg, &scene)
 
 	elapsed := time.Since(start)
-	log.Printf("\n1000 Rounds took %s", elapsed)
+	fmt.Printf("\n%v Rounds took %s", rounds, elapsed)
+	fmt.Printf("\n%.1f FPS", float32(rounds)/float32(elapsed.Seconds()))
 
 	img2 := imagerelated.PixelsToImage(matchImg.Pixels, image.Rect(0, 0, width, height))
-	imagerelated.SaveImage(img2, "Test2.jpg")
+	imagerelated.SaveImage(img2, "pictures/Test2_Triangle2.png")
 
-	// for i := 0; i < 100; i++ {
-	// 	fmt.Print(".")
-	// 	scene.Mutate()
-	// }
-	// scene.Draw(&p)
-	// img = imagerelated.PixelsToImage(p.Pixels, image.Rect(0, 0, 500, 500))
-	// imagerelated.SaveImage(img, "Test2.jpg")
 }
