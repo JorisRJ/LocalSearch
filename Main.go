@@ -40,10 +40,9 @@ func main() {
 		Width:  width,
 		Height: height,
 	}
-	// scene := search.NewRandomScene(width, height)
-	// scene := search.HeadStartedScene(width, height, &original)
 
-	scene := st.NewTriangleSceneHeadstart(96, 64, &original)
+	scene := st.NewTriangleSceneHeadstart(64, 48, &original)
+	//scene := *structures.LoadTriangleScene("saves/triangles1.json")
 	matchImg := st.BlackPicture(width, height)
 	scene.Draw(&matchImg)
 	//img1 := imagerelated.PixelsToImage(matchImg.Pixels, image.Rect(0, 0, width, height))
@@ -53,14 +52,15 @@ func main() {
 
 	start := time.Now()
 
-	rounds := 100000
+	rounds := 1000
 	search.MutationRoundsTriangles(rounds, &original, &matchImg, &scene)
 
 	elapsed := time.Since(start)
 	fmt.Printf("\n%v Rounds took %s", rounds, elapsed)
-	fmt.Printf("\n%.1f FPS", float32(rounds)/float32(elapsed.Seconds()))
+	fmt.Printf("\n%.1f FPS\n", float32(rounds)/float32(elapsed.Seconds()))
 
 	img2 := imagerelated.PixelsToImage(matchImg.Pixels, image.Rect(0, 0, width, height))
-	imagerelated.SaveImage(img2, "pictures/Test2_Triangle2.png")
+	imagerelated.SaveImage(img2, "pictures/Test2_Triangle4.png")
+	//structures.SaveTriangleScene(&scene, "saves/triangles1.json")
 
 }
