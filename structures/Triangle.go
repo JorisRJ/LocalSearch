@@ -289,10 +289,137 @@ func (trs *TriangleScene) Draw(pic *Picture) {
 
 }
 
-// Mutate blablabla
-func (trs *TriangleScene) Mutate() MutationData {
+// SingleTriangleDraw draws a single triange, usefull for a color change
+func (trs *TriangleScene) SingleTriangleDraw(pic *Picture, tri int) {
+	var top, mid, bot *Coord
+	var q1, q2, q3 *Coord
 
-	r := rand.Intn(2)
+	// It might hurt to read this
+	// This draws each triangle
+	tr := trs.Triangles[tri]
+	q1 = &trs.Anchors[tr.Q1]
+	q2 = &trs.Anchors[tr.Q2]
+	q3 = &trs.Anchors[tr.Q3]
+
+	if q1.Y < q2.Y {
+		if q1.Y < q3.Y {
+			top = q1
+
+			if q2.Y < q3.Y {
+				mid = q2
+				bot = q3
+			} else {
+				mid = q3
+				bot = q2
+			}
+		} else {
+			top = q3
+			mid = q1
+			bot = q2
+		}
+	} else if q2.Y < q3.Y {
+		top = q2
+		if q1.Y < q3.Y {
+			mid = q1
+			bot = q3
+		} else {
+			mid = q3
+			bot = q1
+		}
+	} else {
+		top = q3
+		mid = q2
+		bot = q1
+	}
+
+	// Deltas
+	dx1 := mid.X - top.X
+	dx2 := bot.X - top.X
+	dx3 := bot.X - mid.X
+	dy1 := mid.Y - top.Y
+	dy2 := bot.Y - top.Y
+	dy3 := bot.Y - mid.Y
+
+	// Catch the divide by zero before it happens
+	if dy1 == 0 {
+		dy1 = 1
+	}
+
+	if dy2 == 0 {
+		dy2 = 1
+	}
+
+	if dy3 == 0 {
+		dy3 = 1
+	}
+
+	// Slopes
+	dxy1 := float32(dx1) / float32(dy1)
+	dxy2 := float32(dx2) / float32(dy2)
+	dxy3 := float32(dx3) / float32(dy3)
+
+	var x1, x2 float32
+	var tempX1, tempX2 int
+	// Determine start point
+	if top.Y == mid.Y {
+		tempX1 = utils.Min(top.X, mid.X)
+		tempX2 = utils.Max(top.X, mid.X)
+	} else {
+		tempX1 = top.X
+		tempX2 = top.X
+	}
+
+	x1 = float32(tempX1)
+	x2 = float32(tempX2)
+
+	y := float32(top.Y)
+
+	// Draw the upper part of the triangle
+	for y < float32(mid.Y) {
+		for x := utils.FMin(x1, x2); x < utils.FMax(x1, x2); x++ {
+
+			i := utils.Clamp(0, pic.Width*pic.Height-1, int(x+y*float32(pic.Width)))
+			pic.Pixels[i] = tr.Color
+		}
+
+		if y < float32(mid.Y) {
+			x1 += dxy1
+			x2 += dxy2
+		}
+
+		y++
+	}
+
+	// Draw the lower part of the triangle
+	for y <= float32(bot.Y) {
+		for x := utils.FMin(x1, x2); x < utils.FMax(x1, x2); x++ {
+
+			// For bugfixing
+			// if int(x)+int(y)*pic.Width == 732202 {
+			// 	fmt.Printf("\nx: %v; y: %v\n", x, y)
+			// 	fmt.Printf("bot.X: %v; bot.Y: %v\n", bot.X, bot.Y)
+			// 	fmt.Printf("x1: %v; x2: %v\n", x1, x2)
+			// 	fmt.Printf("Width %v\n", pic.Width)
+			// 	fmt.Printf("Q1: %v; Q2: %v; Q3: %v\n", q1, q2, q3)
+			// }
+			i := utils.Clamp(0, pic.Width*pic.Height-1, int(x+y*float32(pic.Width)))
+			pic.Pixels[i] = tr.Color
+		}
+
+		if y < float32(bot.Y) {
+			x1 += dxy3
+			x2 += dxy2
+		}
+
+		y++
+	}
+
+}
+
+// Mutate blablabla
+func (trs *TriangleScene) Mutate(random *rand.Rand) MutationData {
+
+	r := random.Intn(2)
 	var bounds image.Rectangle
 	var undo string
 
@@ -302,7 +429,7 @@ func (trs *TriangleScene) Mutate() MutationData {
 		var anc int
 
 		for {
-			anc = rand.Intn(len(trs.Anchors))
+			anc = random.Intn(len(trs.Anchors))
 
 			// Check to look that it is not a border
 			if (anc%trs.TrWidth != 0) && (anc%trs.TrWidth != trs.TrWidth-1) {
@@ -313,8 +440,8 @@ func (trs *TriangleScene) Mutate() MutationData {
 		}
 
 		disp := Coord{
-			X: rand.Intn(utils.AnchorMoveMax) - utils.AnchorMoveMax/2,
-			Y: rand.Intn(utils.AnchorMoveMax) - utils.AnchorMoveMax/2,
+			X: random.Intn(utils.AnchorMoveMax) - utils.AnchorMoveMax/2,
+			Y: random.Intn(utils.AnchorMoveMax) - utils.AnchorMoveMax/2,
 		}
 
 		undo = fmt.Sprintf("disp;%v;%v;%v", anc, trs.Anchors[anc].X, trs.Anchors[anc].Y)
@@ -329,15 +456,15 @@ func (trs *TriangleScene) Mutate() MutationData {
 		break
 	case 1:
 		// Choose a different collor
-		tri := rand.Intn(len(trs.Triangles))
+		tri := random.Intn(len(trs.Triangles))
 
 		undo = fmt.Sprintf("recol;%v;%v;%v;%v;%v", tri, trs.Triangles[tri].Color.R, trs.Triangles[tri].Color.G,
 			trs.Triangles[tri].Color.B, trs.Triangles[tri].Color.A)
 
-		trs.Triangles[tri].Color.R = utils.Clamp8(0, 255, trs.Triangles[tri].Color.R-uint8(utils.ColorMax)+uint8(rand.Intn(utils.ColorMax/2)))
-		trs.Triangles[tri].Color.G = utils.Clamp8(0, 255, trs.Triangles[tri].Color.G-uint8(utils.ColorMax)+uint8(rand.Intn(utils.ColorMax/2)))
-		trs.Triangles[tri].Color.B = utils.Clamp8(0, 255, trs.Triangles[tri].Color.B-uint8(utils.ColorMax)+uint8(rand.Intn(utils.ColorMax/2)))
-		//trs.Triangles[tri].Color.A = utils.Clamp8(0, 255, trs.Triangles[tri].Color.A - uint8(utils.ColorMax) + uint8(rand.Intn(utils.ColorMax / 2)))
+		trs.Triangles[tri].Color.R = utils.Clamp8(0, 255, trs.Triangles[tri].Color.R-uint8(utils.ColorMax)+uint8(random.Intn(utils.ColorMax/2)))
+		trs.Triangles[tri].Color.G = utils.Clamp8(0, 255, trs.Triangles[tri].Color.G-uint8(utils.ColorMax)+uint8(random.Intn(utils.ColorMax/2)))
+		trs.Triangles[tri].Color.B = utils.Clamp8(0, 255, trs.Triangles[tri].Color.B-uint8(utils.ColorMax)+uint8(random.Intn(utils.ColorMax/2)))
+		//trs.Triangles[tri].Color.A = utils.Clamp8(0, 255, trs.Triangles[tri].Color.A - uint8(utils.ColorMax) + uint8(random.Intn(utils.ColorMax / 2)))
 		bounds = SingleTriangleBounds(trs.Triangles[tri], trs)
 		break
 	case 2:

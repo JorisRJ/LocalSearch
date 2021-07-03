@@ -3,6 +3,7 @@ package main
 import (
 	"LocalSearch/imagerelated"
 	"LocalSearch/search"
+	"LocalSearch/structures"
 	st "LocalSearch/structures"
 	"flag"
 	"fmt"
@@ -27,7 +28,7 @@ func main() {
 		defer pprof.StopCPUProfile()
 	}
 
-	ogImg, err := imagerelated.OpenImage("pictures/mountain-lake.png")
+	ogImg, err := imagerelated.OpenImage("pictures/car.png")
 	if err != nil {
 		fmt.Print(err)
 		return
@@ -41,8 +42,8 @@ func main() {
 		Height: height,
 	}
 
-	scene := st.NewTriangleSceneHeadstart(64, 48, &original)
-	//scene := *structures.LoadTriangleScene("saves/triangles1.json")
+	//scene := st.NewTriangleSceneHeadstart(64, 48, &original)
+	scene := *structures.LoadTriangleScene("saves/car1.json")
 	matchImg := st.BlackPicture(width, height)
 	scene.Draw(&matchImg)
 	//img1 := imagerelated.PixelsToImage(matchImg.Pixels, image.Rect(0, 0, width, height))
@@ -52,7 +53,7 @@ func main() {
 
 	start := time.Now()
 
-	rounds := 1000
+	rounds := 100000
 	search.MutationRoundsTriangles(rounds, &original, &matchImg, &scene)
 
 	elapsed := time.Since(start)
@@ -60,7 +61,7 @@ func main() {
 	fmt.Printf("\n%.1f FPS\n", float32(rounds)/float32(elapsed.Seconds()))
 
 	img2 := imagerelated.PixelsToImage(matchImg.Pixels, image.Rect(0, 0, width, height))
-	imagerelated.SaveImage(img2, "pictures/Test2_Triangle4.png")
-	//structures.SaveTriangleScene(&scene, "saves/triangles1.json")
+	imagerelated.SaveImage(img2, "pictures/Triangle_car1.png")
+	structures.SaveTriangleScene(&scene, "saves/car1.json")
 
 }

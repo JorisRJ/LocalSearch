@@ -49,10 +49,10 @@ func absFitness(A *st.Picture, B *st.Picture) uint64 {
 
 	for i, p := range A.Pixels {
 		var partSum uint64
-		partSum += uint64(colDiff(p.R, B.Pixels[i].R))
-		partSum += uint64(colDiff(p.G, B.Pixels[i].G))
-		partSum += uint64(colDiff(p.B, B.Pixels[i].B))
-		partSum += uint64(colDiff(p.A, B.Pixels[i].A))
+		partSum += uint64(ColDiff(p.R, B.Pixels[i].R))
+		partSum += uint64(ColDiff(p.G, B.Pixels[i].G))
+		partSum += uint64(ColDiff(p.B, B.Pixels[i].B))
+		partSum += uint64(ColDiff(p.A, B.Pixels[i].A))
 		sum += partSum
 	}
 
@@ -69,10 +69,10 @@ func absFitnessSubSections(A *st.Picture, B *st.Picture, subSections *[]image.Re
 			for x := rect.Min.X; x < rect.Max.X; x++ {
 				i := y*A.Width + x
 				var partSum uint64
-				partSum += uint64(colDiff(A.Pixels[i].R, B.Pixels[i].R))
-				partSum += uint64(colDiff(A.Pixels[i].G, B.Pixels[i].G))
-				partSum += uint64(colDiff(A.Pixels[i].B, B.Pixels[i].B))
-				partSum += uint64(colDiff(A.Pixels[i].A, B.Pixels[i].A))
+				partSum += uint64(ColDiff(A.Pixels[i].R, B.Pixels[i].R))
+				partSum += uint64(ColDiff(A.Pixels[i].G, B.Pixels[i].G))
+				partSum += uint64(ColDiff(A.Pixels[i].B, B.Pixels[i].B))
+				partSum += uint64(ColDiff(A.Pixels[i].A, B.Pixels[i].A))
 				sum += partSum
 			}
 		}
@@ -81,7 +81,8 @@ func absFitnessSubSections(A *st.Picture, B *st.Picture, subSections *[]image.Re
 	return sum
 }
 
-func colDiff(a, b uint8) uint8 {
+// ColDiff gives the difference in color
+func ColDiff(a, b uint8) uint8 {
 	if a > b {
 		return a - b
 	} else {
