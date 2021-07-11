@@ -54,8 +54,6 @@ func OpenImage(path string) (*image.NRGBA, error) {
 	}
 
 	return nImg, nil
-
-	//return nil, errors.New("Could not convert to NRGBA")
 }
 
 // ImageToPixels transforms an image ot a pixel array
@@ -105,23 +103,5 @@ func SaveImage(img *image.NRGBA, name string) {
 	defer fimg.Close()
 
 	png.Encode(fimg, img)
-
-}
-
-// Test is a test yes
-func Test() {
-	fmt.Println("Start processing")
-	img, err := OpenImage("dog.png")
-
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	pixels := ImageToPixels(img)
-
-	nimg := PixelsToImage(pixels, img.Bounds())
-
-	SaveImage(nimg, "newdog.jpeg")
 
 }

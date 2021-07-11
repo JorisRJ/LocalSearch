@@ -8,14 +8,22 @@ import (
 	"math/rand"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 )
 
 // MutationRoundsTriangles mutates for a number of rounds
-func MutationRoundsTriangles(rounds int, original *st.Picture, match *st.Picture, scene *st.TriangleScene) {
+func MutationRoundsTriangles(rounds int, original *st.Picture, match *st.Picture, scene *st.TriangleScene, wg *sync.WaitGroup) {
+	if wg != nil {
+		// Tell the waitgroup the routine is done at the end
+		defer wg.Done()
+	}
+
 	random := rand.New(rand.NewSource(int64(time.Now().Nanosecond())))
 
 	for i := 0; i < rounds; i++ {
+
+		// Show progress
 		if i%10 == 0 {
 			fmt.Printf("\rProgress: %v%%", (i+1)*100/rounds)
 		}
@@ -26,11 +34,13 @@ func MutationRoundsTriangles(rounds int, original *st.Picture, match *st.Picture
 		//If the mutation is a recolor, only one triangle needs to be recolored
 		undo := strings.Split(muData.Undo, ";")
 		if undo[0] == "recol" {
+			// Only a single triangle affected (fast)
 			tri, _ := strconv.ParseInt(undo[1], 10, 64)
 			fitOld = SingleTriangleFitness(original, match, int(tri), scene)
 			scene.SingleTriangleDraw(match, int(tri))
 			fitNew = SingleTriangleFitness(original, match, int(tri), scene)
 		} else {
+			// Multiple triangles affected (slow)
 			fitOld = absFitnessSubSections(original, match, &[]image.Rectangle{muData.Bounds})
 			scene.Draw(match)
 			fitNew = absFitnessSubSections(original, match, &[]image.Rectangle{muData.Bounds})
@@ -43,19 +53,18 @@ func MutationRoundsTriangles(rounds int, original *st.Picture, match *st.Picture
 			undo := strings.Split(muData.Undo, ";")
 
 			if undo[0] == "recol" {
+				// Redraw the recolored triangle
 				tri, _ := strconv.ParseInt(undo[1], 10, 64)
 				scene.SingleTriangleDraw(match, int(tri))
 			} else {
+				// Redraw the entire scene
 				scene.Draw(match)
 			}
 		}
 	}
 }
 
-// Alright algoritme idee
-// Goroutines very many
-
-// SingleTriangleFitness checks a single triangle, usefull for a color change
+// SingleTriangleFitness checks a single triangle in both pictures, usefull for a color change
 func SingleTriangleFitness(A *st.Picture, B *st.Picture, tri int, trs *st.TriangleScene) uint64 {
 	var top, mid, bot *st.Coord
 	var q1, q2, q3 *st.Coord

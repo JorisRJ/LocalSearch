@@ -167,20 +167,16 @@ func MutationRounds(rounds int, original *st.Picture, match *st.Picture, scene *
 
 		var dup CircScene
 		utils.Clone(scene, &dup)
-		fitOld := squaredFitness(original, match)
+		fitOld := AbsFitness(original, match)
 		scene.Mutate()
 		scene.Draw(match)
-		fitNew := squaredFitness(original, match)
+		fitNew := AbsFitness(original, match)
 
 		if fitNew < fitOld {
-			//fmt.Printf("\nBETTER: %v    %v", fitOld, fitNew)
 			continue
 		} else {
-			//fmt.Printf("\n WORSE: %v    %v", fitOld, fitNew)
 			scene = &dup
 			scene.Draw(match)
 		}
 	}
 }
-
-//Copy -> Mutate -> Draw -> keep or reset circle list -> repeat

@@ -15,8 +15,8 @@ If there is a grid of 9x9 squares with triangles, there are 10x10 anchor points,
 thus 9x9x2 = 162 triangles and 100 anchor points.
 Each of the corners of a triangle (Q1, Q2, Q3) will point to a place in the anchor point array
 Thus most anchors are connected to 6 triangles.
-
 */
+
 // TriangleScene holds anchors and triangles
 type TriangleScene struct {
 	Anchors           []Coord
@@ -265,14 +265,6 @@ func (trs *TriangleScene) Draw(pic *Picture) {
 		for y <= float32(bot.Y) {
 			for x := utils.FMin(x1, x2); x < utils.FMax(x1, x2); x++ {
 
-				// For bugfixing
-				// if int(x)+int(y)*pic.Width == 732202 {
-				// 	fmt.Printf("\nx: %v; y: %v\n", x, y)
-				// 	fmt.Printf("bot.X: %v; bot.Y: %v\n", bot.X, bot.Y)
-				// 	fmt.Printf("x1: %v; x2: %v\n", x1, x2)
-				// 	fmt.Printf("Width %v\n", pic.Width)
-				// 	fmt.Printf("Q1: %v; Q2: %v; Q3: %v\n", q1, q2, q3)
-				// }
 				i := utils.Clamp(0, pic.Width*pic.Height-1, int(x+y*float32(pic.Width)))
 				pic.Pixels[i] = tr.Color
 			}
@@ -393,15 +385,6 @@ func (trs *TriangleScene) SingleTriangleDraw(pic *Picture, tri int) {
 	// Draw the lower part of the triangle
 	for y <= float32(bot.Y) {
 		for x := utils.FMin(x1, x2); x < utils.FMax(x1, x2); x++ {
-
-			// For bugfixing
-			// if int(x)+int(y)*pic.Width == 732202 {
-			// 	fmt.Printf("\nx: %v; y: %v\n", x, y)
-			// 	fmt.Printf("bot.X: %v; bot.Y: %v\n", bot.X, bot.Y)
-			// 	fmt.Printf("x1: %v; x2: %v\n", x1, x2)
-			// 	fmt.Printf("Width %v\n", pic.Width)
-			// 	fmt.Printf("Q1: %v; Q2: %v; Q3: %v\n", q1, q2, q3)
-			// }
 			i := utils.Clamp(0, pic.Width*pic.Height-1, int(x+y*float32(pic.Width)))
 			pic.Pixels[i] = tr.Color
 		}
@@ -416,7 +399,7 @@ func (trs *TriangleScene) SingleTriangleDraw(pic *Picture, tri int) {
 
 }
 
-// Mutate blablabla
+// Mutate performs a mutation on the scene
 func (trs *TriangleScene) Mutate(random *rand.Rand) MutationData {
 
 	r := random.Intn(2)
@@ -465,17 +448,11 @@ func (trs *TriangleScene) Mutate(random *rand.Rand) MutationData {
 		trs.Triangles[tri].Color.G = utils.Clamp8(0, 255, trs.Triangles[tri].Color.G-uint8(utils.ColorMax)+uint8(random.Intn(utils.ColorMax/2)))
 		trs.Triangles[tri].Color.B = utils.Clamp8(0, 255, trs.Triangles[tri].Color.B-uint8(utils.ColorMax)+uint8(random.Intn(utils.ColorMax/2)))
 		//trs.Triangles[tri].Color.A = utils.Clamp8(0, 255, trs.Triangles[tri].Color.A - uint8(utils.ColorMax) + uint8(random.Intn(utils.ColorMax / 2)))
+
 		bounds = SingleTriangleBounds(trs.Triangles[tri], trs)
 		break
-	case 2:
-		break
-	case 3:
-		break
-	case 4:
-		break
-
 	default:
-		fmt.Println("Yeet")
+		fmt.Println("Nope nope nope")
 	}
 
 	return MutationData{

@@ -5,6 +5,8 @@ import (
 	"encoding/gob"
 )
 
+// Most of these constants are for circles which is kind of halted in development
+
 // MoveMax is the maximum amount a circle may be moved by a small mutation
 const MoveMax int = 25
 
@@ -36,17 +38,6 @@ func Clamp(min int, max int, value int) int {
 
 // Clamp8 is clamp for uint8
 func Clamp8(min uint8, max uint8, value uint8) uint8 {
-	if value < min {
-		return min
-	} else if value > max {
-		return max
-	}
-
-	return value
-}
-
-// FClamp is not in the math package sadface
-func FClamp(min float32, max float32, value float32) float32 {
 	if value < min {
 		return min
 	} else if value > max {
@@ -96,4 +87,16 @@ func FMax(a, b float32) float32 {
 		return b
 	}
 	return a
+}
+
+// LowestIndex returns the index of the lowest value in the list
+func LowestIndex(list []uint64) int {
+	low := list[0]
+	index := 0
+	for i := range list {
+		if list[i] < low {
+			index = i
+		}
+	}
+	return index
 }
