@@ -21,7 +21,7 @@ func (p *Pixel) SetPixel(other Pixel) {
 	p.A = other.A
 }
 
-// A Picture is a picture composted of pixels
+// A Picture is a picture composed of pixels
 type Picture struct {
 	Pixels []Pixel
 	Width  int

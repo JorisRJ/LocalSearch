@@ -16,7 +16,7 @@ import (
 const Threads int = 8
 
 // RoundsPerWave is the amount of rounds per wave, every wave some threads will be killed and some duplicated
-const RoundsPerWave int = 500000
+const RoundsPerWave int = 10000
 
 // AnchorsWidth is the amound of Anchors horizontally
 const AnchorsWidth int = 100
@@ -42,7 +42,7 @@ func main() {
 	// Choose one of these three and thange the name to your picture
 	singleThreaded("pindakaas", nil)
 	// multiThreaded("car")
-	//parallelPictures([]string{"pindakaas", "nederland"})
+	// parallelPictures([]string{"pindakaas", "nederland"})
 }
 
 // singleThreaded spends one thread on one picture
@@ -130,10 +130,10 @@ func multiThreaded(name string) {
 	}
 
 	// Create a new scene
-	// scene := st.NewTriangleSceneHeadstart(AnchorsWidth, AnchorsHeight, &original)
+	scene := st.NewTriangleSceneHeadstart(AnchorsWidth, AnchorsHeight, &original)
 
 	// Open a saved scene
-	scene := *structures.LoadTriangleScene(fmt.Sprintf("saves/%v_save.json", name))
+	// scene := *structures.LoadTriangleScene(fmt.Sprintf("saves/%v_save.json", name))
 
 	matchImg := st.BlackPicture(width, height)
 	scene.Draw(&matchImg)

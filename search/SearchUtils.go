@@ -5,12 +5,6 @@ import (
 	"image"
 )
 
-// Scene is an interface holding info about a scene
-type Scene interface {
-	Mutate()
-	Draw(pic *st.Picture)
-}
-
 // AbsFitness is the fitness of a picture using the formula abs(A-B)
 func AbsFitness(A *st.Picture, B *st.Picture) uint64 {
 	var sum uint64

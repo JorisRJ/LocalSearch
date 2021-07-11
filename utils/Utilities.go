@@ -5,27 +5,13 @@ import (
 	"encoding/gob"
 )
 
-// Most of these constants are for circles which is kind of halted in development
-
-// MoveMax is the maximum amount a circle may be moved by a small mutation
-const MoveMax int = 25
-
 // AnchorMoveMax is the maximum amount a circle may be moved by a small mutation
 const AnchorMoveMax int = 5
 
 // ColorMax is the maximum amount a r,g,b value of a color may be changed by a small mutation
 const ColorMax int = 8
 
-// RadiusMax is the max amount the squared radius may be adjusted by a small mutation
-const RadiusMax int = 8
-
-// RadiusMaxReroll is the maximum radius that may be chosen in a complete reroll
-const RadiusMaxReroll int = 80
-
-// StartCircleAmount is the starting amount of circles in a scene
-const StartCircleAmount int = 256
-
-// Clamp is not in the math package sadface
+// Clamp is not in the math package sadface (or I did not look hard enough)
 func Clamp(min int, max int, value int) int {
 	if value < min {
 		return min
@@ -63,7 +49,7 @@ func Max(a int, b int) int {
 	return b
 }
 
-// Clone clones yes the floor is made out of floor
+// Clone clones; yes the floor is made out of floor
 func Clone(a, b interface{}) {
 
 	buff := new(bytes.Buffer)
@@ -73,7 +59,7 @@ func Clone(a, b interface{}) {
 	dec.Decode(b)
 }
 
-// FMin yeet
+// FMin gives the smallest float
 func FMin(a, b float32) float32 {
 	if a < b {
 		return a
@@ -81,7 +67,7 @@ func FMin(a, b float32) float32 {
 	return b
 }
 
-// FMax yeet
+// FMax gives the largest float
 func FMax(a, b float32) float32 {
 	if a < b {
 		return b
